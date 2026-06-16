@@ -1,66 +1,223 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🏥 MediBook
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+**Multi-tenant SaaS Clinic Management System**
 
-## About Laravel
+MediBook is a full-featured, multi-tenant SaaS platform built for modern clinics and healthcare providers. Each clinic operates in complete isolation with its own subdomain, data, and branding — powered by Laravel 12 and `stancl/tenancy`.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## ✨ Features
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 🏢 Multi-Tenancy
+- Subdomain-based tenant isolation (`clinic.medibook.test`)
+- Super Admin panel for managing all tenants
+- Per-tenant database separation via `stancl/tenancy`
+- Tenant onboarding with SSLCommerz subscription payment
 
-## Learning Laravel
+### 👥 Role-Based Access Control (5 Roles)
+| Role | Capabilities |
+|------|-------------|
+| **Super Admin** | Manage tenants, plans, global settings |
+| **Clinic Admin** | Full clinic control — staff, billing, reports |
+| **Doctor** | View appointments, write prescriptions, manage schedule |
+| **Receptionist** | Book appointments, manage patients, generate invoices |
+| **Patient** | Self-register, book appointments, view prescriptions |
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### 📅 Appointments
+- Smart scheduling with doctor availability & time slots
+- Auto fee population (Alpine.js)
+- Status tracking: Pending → Confirmed → Completed → Cancelled
+- Email & in-app notifications for bookings
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### 💊 Prescriptions
+- Doctor-issued prescriptions per appointment
+- Medication, dosage, instructions
+- Printable PDF via DomPDF
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 🧾 Billing & Invoices
+- Invoice generation per appointment
+- Payment status tracking (Paid / Unpaid / Partial)
+- PDF invoice download (DomPDF)
+- Email invoice on payment (InvoiceSent notification)
 
-## Laravel Sponsors
+### 🩺 Patient Portal
+- Patient self-registration & login
+- View upcoming/past appointments
+- Access prescriptions and invoices
+- Book new appointments directly
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### 📊 Reports
+- Appointment reports (by date, doctor, status)
+- Revenue reports
+- Patient visit history
 
-### Premium Partners
+### ⚙️ Clinic Settings
+- Clinic profile & branding
+- Working hours configuration
+- Doctor schedule management
+- Notification preferences
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+### 💳 Subscription Management
+- Subscription plans (Basic, Pro, Enterprise)
+- SSLCommerz payment gateway integration
+- Plan upgrade/downgrade support
+- Subscription expiry alerts
 
-## Contributing
+### 🔔 Notifications
+- Database notifications (bell dropdown)
+- Email notifications (appointment booked, invoice sent, etc.)
+- Real-time bell badge with unread count
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+---
 
-## Code of Conduct
+## 🛠️ Tech Stack
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+| Layer | Technology |
+|-------|-----------|
+| **Backend** | PHP 8, Laravel 12 |
+| **Multi-Tenancy** | stancl/tenancy |
+| **Auth & RBAC** | Laravel Breeze + Spatie Permission |
+| **Frontend** | Blade, Tailwind CSS, Alpine.js |
+| **Icons** | Tabler Icons |
+| **PDF** | DomPDF (barryvdh/laravel-dompdf) |
+| **Payment** | SSLCommerz |
+| **Database** | MySQL |
+| **Queue** | Laravel Queue (database driver) |
+| **Mail** | Laravel Mail (SMTP) |
+| **Build Tool** | Vite + NPM |
 
-## Security Vulnerabilities
+---
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## 🚀 Installation
 
-## License
+### Requirements
+- PHP >= 8.2
+- Composer
+- Node.js & NPM
+- MySQL
+- Laravel 12
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### Steps
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/shamimgalaxy/medibook.git
+cd medibook
+
+# 2. Install PHP dependencies
+composer install
+
+# 3. Install JS dependencies
+npm install && npm run build
+
+# 4. Copy environment file
+cp .env.example .env
+
+# 5. Generate application key
+php artisan key:generate
+
+# 6. Configure your .env
+# Set DB_*, MAIL_*, SSLCOMMERZ_*, APP_URL
+
+# 7. Run migrations (central DB)
+php artisan migrate
+
+# 8. Seed super admin
+php artisan db:seed --class=SuperAdminSeeder
+
+# 9. Configure subdomain routing
+# Point *.yourdomain.com to your server
+# Update APP_URL and TENANCY_CENTRAL_DOMAINS in .env
+
+# 10. Serve the application
+php artisan serve
+```
+
+### Environment Variables (Key)
+
+```env
+APP_URL=http://medibook.test
+TENANCY_CENTRAL_DOMAINS=medibook.test
+
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=medibook_central
+DB_USERNAME=root
+DB_PASSWORD=
+
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.mailtrap.io
+MAIL_PORT=2525
+MAIL_USERNAME=your_username
+MAIL_PASSWORD=your_password
+
+SSLCOMMERZ_STORE_ID=your_store_id
+SSLCOMMERZ_STORE_PASSWORD=your_store_password
+SSLCOMMERZ_IS_SANDBOX=true
+```
+
+---
+
+## 🗂️ Project Structure
+
+```
+app/
+├── Http/Controllers/
+│   ├── Central/          # Super Admin controllers
+│   └── Tenant/           # Clinic controllers (flat structure)
+├── Models/               # Eloquent models
+├── Notifications/        # Mail & DB notifications
+└── Providers/
+
+resources/views/
+├── central/              # Super Admin views
+└── tenant/               # Clinic views per module
+    ├── appointments/
+    ├── billing/
+    ├── doctors/
+    ├── patients/
+    ├── prescriptions/
+    ├── reports/
+    └── settings/
+```
+
+---
+
+## 🎨 Theme
+
+| Panel | Primary Color |
+|-------|--------------|
+| Super Admin | Indigo |
+| Clinic Admin | Blue `#185FA5` |
+| Doctor | Green `#0F6E56` |
+| Patient Portal | Teal |
+
+---
+
+## 📸 Screenshots
+
+> *(Add screenshots here)*
+
+| Dashboard | Appointments | Prescriptions |
+|-----------|-------------|---------------|
+| ![Dashboard](#) | ![Appointments](#) | ![Prescriptions](#) |
+
+---
+
+## 📄 License
+
+This project is open-sourced under the [MIT License](LICENSE).
+
+---
+
+## 👨‍💻 Author
+
+**Shamim Ahmed**
+Full Stack Laravel Developer
+📧 shamimgalaxy@gmail.com
+🔗 [GitHub](https://github.com/shamimgalaxy) · [LinkedIn](https://linkedin.com/in/shamimgalaxy)
+
+---
+
+> Built with ❤️ using Laravel 12 · stancl/tenancy · Spatie Permission · SSLCommerz
