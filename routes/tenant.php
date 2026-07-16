@@ -43,11 +43,16 @@ Route::middleware([
 
     });
 
-    // SSLCommerz callbacks (no auth)
-    Route::post('/subscription/success', [SubscriptionController::class, 'success'])->name('subscription.success');
-    Route::post('/subscription/fail',    [SubscriptionController::class, 'fail'])->name('subscription.fail');
-    Route::post('/subscription/cancel',  [SubscriptionController::class, 'cancel'])->name('subscription.cancel');
-    Route::post('/subscription/ipn',     [SubscriptionController::class, 'ipn'])->name('subscription.ipn');
+    // SSLCommerz callbacks (no auth, no session/cookies — cross-site POST from SSLCommerz)
+   Route::withoutMiddleware([
+        \Illuminate\Cookie\Middleware\EncryptCookies::class,
+        \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+    ])->group(function () {
+        Route::post('/subscription/success', [SubscriptionController::class, 'success'])->name('subscription.success');
+        Route::post('/subscription/fail',    [SubscriptionController::class, 'fail'])->name('subscription.fail');
+        Route::post('/subscription/cancel',  [SubscriptionController::class, 'cancel'])->name('subscription.cancel');
+        Route::post('/subscription/ipn',     [SubscriptionController::class, 'ipn'])->name('subscription.ipn');
+    });
 
     // ── All other routes require auth + active subscription ───────────────
     Route::middleware(['auth', 'verified', 'check.subscription'])->group(function () {

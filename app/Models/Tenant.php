@@ -12,6 +12,14 @@ class Tenant extends BaseTenant implements TenantWithDatabase
 {
     use HasDatabase, HasDomains;
 
+    /**
+     * Tenant records live in medibook_central. Pinned explicitly
+     * to avoid the same implicit-connection bug that hit
+     * SubscriptionPlan — this model is frequently queried from
+     * inside tenant-context requests (e.g. subscription/pay).
+     */
+    protected $connection = 'central';
+
     protected $casts = [
         'plan_expires_at' => 'datetime',
         'trial_ends_at'   => 'datetime',

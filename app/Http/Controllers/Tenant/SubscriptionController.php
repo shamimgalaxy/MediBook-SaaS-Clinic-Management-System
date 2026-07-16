@@ -7,7 +7,7 @@ use App\Models\SubscriptionPayment;
 use App\Models\SubscriptionPlan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use Karim007\LaravelSslcommerzTokenize\Facade\SslCommerzTokenize;
+use Karim007\SslcommerzLaravel\Facade\SSLCommerzPayment;
 
 class SubscriptionController extends Controller
 {
@@ -24,14 +24,13 @@ class SubscriptionController extends Controller
     public function initiate(Request $request)
     {
         $request->validate([
-            'plan_id'      => 'required|exists:subscription_plans,id',
+            'plan_id'      => 'required|exists:central.subscription_plans,id',
             'duration_days'=> 'required|integer|in:30,90,180,365',
         ]);
 
         $plan   = SubscriptionPlan::findOrFail($request->plan_id);
         $tenant = tenant();
 
-        // Calculate amount based on duration
         $months = match((int) $request->duration_days) {
             90  => 3,
             180 => 6,
@@ -40,7 +39,6 @@ class SubscriptionController extends Controller
         };
         $amount = $plan->price * $months;
 
-        // Create pending payment record
         $transactionId = 'MB-' . strtoupper(Str::random(10));
 
         $payment = SubscriptionPayment::create([
@@ -52,7 +50,6 @@ class SubscriptionController extends Controller
             'status'        => 'pending',
         ]);
 
-        // SSLCommerz payload
         $data = [
             'total_amount'        => $amount,
             'currency'            => 'BDT',
@@ -71,13 +68,14 @@ class SubscriptionController extends Controller
             'cus_city'            => 'Dhaka',
             'cus_country'         => 'Bangladesh',
             'cus_phone'           => '01700000000',
-            'val_id'              => '',
         ];
 
-        $response = SslCommerzTokenize::makePayment($data);
+        $response = SSLCommerzPayment::makePayment($data);
 
-        if (isset($response['GatewayPageURL'])) {
-            return redirect($response['GatewayPageURL']);
+        $responseArray = is_string($response) ? json_decode($response, true) : $response;
+
+        if (isset($responseArray['status']) && $responseArray['status'] === 'success' && !empty($responseArray['data'])) {
+            return redirect($responseArray['data']);
         }
 
         return back()->with('error', 'Payment gateway error. Please try again.');
@@ -90,9 +88,8 @@ class SubscriptionController extends Controller
             ->where('status', 'pending')
             ->firstOrFail();
 
-        // Validate with SSLCommerz
-        $validation = SslCommerzTokenize::orderValidate(
-            $request->val_id,
+        $validation = SSLCommerzPayment::orderValidate(
+            $request->all(),
             $request->tran_id,
             $payment->amount,
             'BDT'
@@ -105,7 +102,6 @@ class SubscriptionController extends Controller
                 'gateway_response' => $request->all(),
             ]);
 
-            // Activate subscription on tenant
             $tenant = \App\Models\Tenant::find($payment->tenant_id);
             $tenant->update([
                 'plan_id'         => $payment->plan_id,
@@ -113,15 +109,19 @@ class SubscriptionController extends Controller
                 'on_trial'        => false,
             ]);
 
-            return redirect()->route('subscription.index')
-                ->with('success', 'Subscription activated successfully! Plan valid until ' .
-                    now()->addDays($payment->duration_days)->format('d M Y') . '.');
+            return response()->view('tenant.subscription.result', [
+                'status'  => 'success',
+                'message' => 'Subscription activated successfully! Plan valid until ' .
+                    now()->addDays($payment->duration_days)->format('d M Y') . '.',
+            ]);
         }
 
         $payment->update(['status' => 'failed', 'gateway_response' => $request->all()]);
 
-        return redirect()->route('subscription.index')
-            ->with('error', 'Payment validation failed. Please contact support.');
+        return response()->view('tenant.subscription.result', [
+            'status'  => 'error',
+            'message' => 'Payment validation failed. Please contact support.',
+        ]);
     }
 
     // ── Fail callback ──────────────────────────────────────────
@@ -130,8 +130,10 @@ class SubscriptionController extends Controller
         SubscriptionPayment::where('transaction_id', $request->tran_id)
             ->update(['status' => 'failed', 'gateway_response' => $request->all()]);
 
-        return redirect()->route('subscription.index')
-            ->with('error', 'Payment failed. Please try again.');
+        return response()->view('tenant.subscription.result', [
+            'status'  => 'error',
+            'message' => 'Payment failed. Please try again.',
+        ]);
     }
 
     // ── Cancel callback ────────────────────────────────────────
@@ -140,8 +142,10 @@ class SubscriptionController extends Controller
         SubscriptionPayment::where('transaction_id', $request->tran_id)
             ->update(['status' => 'cancelled', 'gateway_response' => $request->all()]);
 
-        return redirect()->route('subscription.index')
-            ->with('error', 'Payment cancelled.');
+        return response()->view('tenant.subscription.result', [
+            'status'  => 'error',
+            'message' => 'Payment cancelled.',
+        ]);
     }
 
     // ── IPN callback ───────────────────────────────────────────

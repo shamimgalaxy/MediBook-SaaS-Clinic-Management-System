@@ -7,6 +7,15 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class SubscriptionPlan extends Model
 {
+    /**
+     * This model lives in the central database (medibook_central),
+     * not per-tenant. Without this, Eloquent uses whichever
+     * connection is currently active — which becomes "tenant"
+     * once InitializeTenancyByDomain middleware has run, causing
+     * "table not found" errors when queried inside a tenant request.
+     */
+    protected $connection = 'central';
+
     protected $fillable = [
         'name',
         'slug',
